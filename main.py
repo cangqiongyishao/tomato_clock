@@ -1,13 +1,16 @@
 from tkinter import *
+import winsound
+import sys
+import os
 # ---------------------------- CONSTANTS ------------------------------- #
 PINK = "#e2979c"
 RED = "#e7305b"
 GREEN = "#9bdeac"
 YELLOW = "#f7f5dd"
 FONT_NAME = "Courier"
-WORK_MIN = 25
-SHORT_BREAK_MIN = 5
-LONG_BREAK_MIN = 20
+WORK_MIN = 50
+SHORT_BREAK_MIN = 10
+LONG_BREAK_MIN = 30
 reps=0
 timer=None
 # ---------------------------- TIMER RESET ------------------------------- #
@@ -28,16 +31,17 @@ def start_timer():
     work_sec=WORK_MIN*60
     short_break_sec=SHORT_BREAK_MIN*60
     long_break_sec=LONG_BREAK_MIN*60
-    if reps==8:
-        count_down(long_break_sec)
-        title_label1.config(text='Break',fg=RED)
+    if reps<=8:
+        if reps==8:
+            count_down(long_break_sec)
+            title_label1.config(text='Break',fg=RED)
 
-    elif reps%2==1:
-        count_down(work_sec)
-        title_label1.config(text='Work', fg=GREEN)
-    else:
-        count_down(short_break_sec)
-        title_label1.config(text='Break', fg=PINK)
+        elif reps%2==1:
+            count_down(work_sec)
+            title_label1.config(text='Work', fg=GREEN)
+        else:
+            count_down(short_break_sec)
+            title_label1.config(text='Break', fg=PINK)
 
 
 
@@ -52,6 +56,7 @@ def count_down(count):
         global timer
         timer=window.after(1000,count_down,count-1)
     else:
+        winsound.MessageBeep()
         start_timer()
         if reps%2==0:
             t=reps//2*'✓'
@@ -59,13 +64,23 @@ def count_down(count):
 
 
 # ---------------------------- UI SETUP ------------------------------- #
+
+def get_image_path(filename):
+    if getattr(sys, 'frozen', False):
+        # 如果程序是打包成了单个文件
+        base_path = sys._MEIPASS
+    else:
+        # 如果程序是从脚本运行
+        base_path = os.path.dirname(__file__)
+    return os.path.join(base_path, filename)
+
 window=Tk()
 window.title('tomato')
 window.config(padx=100,pady=50,bg=YELLOW)
 window.after(1000,)
 
 canvas=Canvas(width=200,height=224,bg=YELLOW,highlightthickness=0)
-tomato_img=PhotoImage(file='tomato.png')
+tomato_img=PhotoImage(file=get_image_path('tomato.png'))
 canvas.create_image(100,112,image=tomato_img)
 timer_text=canvas.create_text(100,130,text='00:00',fill='white',font=(FONT_NAME,35,'bold'))
 canvas.grid(row=1,column=1)
